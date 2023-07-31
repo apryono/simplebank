@@ -22,6 +22,12 @@ ORDER BY id
 LIMIT $1
 OFFSET $2;
 
+-- name: AddAccountBalance :one
+UPDATE accounts 
+SET balance = balance + sqlc.arg(amount) -- amount will be the name the generated parameters
+WHERE id = sqlc.arg(id)  -- id will be the name the generated parameters
+RETURNING *;
+
 -- name: UpdateAccount :one
 UPDATE accounts 
 SET balance = $2
