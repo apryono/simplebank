@@ -13,7 +13,7 @@ import (
 func createRandomEntry(t *testing.T) Entry {
 
 	arg := CreateEntryParams{
-		AccountID: 16,
+		AccountID: 1,
 		Amount:    util.RandomMoney(),
 	}
 
@@ -53,8 +53,8 @@ func TestListEntry(t *testing.T) {
 	}
 
 	arg := ListEntriesParams{
-		Limit:  5,
-		Offset: 5,
+		Limit:  1,
+		Offset: 1,
 	}
 
 	entries, err := testQueries.ListEntries(context.Background(), arg)
