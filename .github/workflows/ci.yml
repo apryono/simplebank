@@ -9,9 +9,9 @@ on:
   pull_request:
     branches: [ "master" ]
 
-test:
+jobs:
 
-  build:
+  test:
     name: Test
     runs-on: ubuntu-latest
 
