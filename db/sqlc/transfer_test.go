@@ -41,8 +41,8 @@ func TestListTransfer(t *testing.T) {
 	}
 
 	arg := ListTransferParams{
-		Limit:  1,
-		Offset: 1,
+		Limit:  5,
+		Offset: 5,
 	}
 
 	transfers, err := testQueries.ListTransfer(context.Background(), arg)

@@ -53,8 +53,8 @@ func TestListEntry(t *testing.T) {
 	}
 
 	arg := ListEntriesParams{
-		Limit:  1,
-		Offset: 1,
+		Limit:  5,
+		Offset: 5,
 	}
 
 	entries, err := testQueries.ListEntries(context.Background(), arg)
