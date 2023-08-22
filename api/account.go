@@ -6,7 +6,6 @@ import (
 	db "training/simplebank/db/sqlc"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 type createAccountRequest struct {
@@ -52,7 +51,6 @@ func (server *Server) getAccount(ctx *gin.Context) {
 	account, err := server.store.GetAccount(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logrus.Error("DataErr :", err)
 			ctx.JSON(http.StatusNotFound, errResponse(err))
 			return
 		}
@@ -65,7 +63,7 @@ func (server *Server) getAccount(ctx *gin.Context) {
 }
 
 type listAccountRequest struct {
-	PageID int32 `form:"page_id" binding:"required,min=1"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
@@ -78,13 +76,73 @@ func (server *Server) listAccount(ctx *gin.Context) {
 	}
 
 	arg := db.ListAccountsParams{
-		Limit: req.PageSize,
+		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
 	account, err := server.store.ListAccounts(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, account)
+}
+
+type idAccountRequest struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
+}
+
+type updateAccountRequest struct {
+	IsAdd   bool  `json:"is_add"`
+	Balance int64 `json:"balance" binding:"required"`
+}
+
+func (server *Server) updateBalanceAccount(ctx *gin.Context) {
+	var (
+		acc     idAccountRequest
+		req     updateAccountRequest
+		balance int64
+		isAdd   bool = false
+	)
+
+	if err := ctx.ShouldBindUri(&acc); err != nil {
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
+		return
+	}
+
+	account, err := server.store.GetAccount(ctx, acc.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
+		return
+	}
+
+	isAdd = req.IsAdd
+
+	if isAdd {
+		balance = account.Balance + req.Balance
+	} else {
+		balance = account.Balance - req.Balance
+	}
+
+	arg := db.UpdateAccountParams{
+		ID:      acc.ID,
+		Balance: balance,
+	}
+
+	account, err = server.store.UpdateAccount(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 

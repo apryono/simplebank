@@ -19,3 +19,4 @@ packages:
     queries: "./db/query/" # location of setting query sql, and generated files will be read from this file for CRUD function repository
     schema: "./db/migration" # location of query migration, and generated files will be read from this file for models
     emit_json_tags: true # create tag json on struct
+    emit_empty_slices: true
